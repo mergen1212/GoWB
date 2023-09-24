@@ -1,0 +1,68 @@
+datasource db{
+  provider = "postgresql"
+  url = "postgres://habrpguser:pgpwd4habr@127.0.0.1:5432/habrdb"
+}
+
+generator db {
+  provider = "go run github.com/steebchen/prisma-client-go"
+}
+ 
+model Order {
+  order_uid        String    @id
+  track_number String @unique
+  entry String
+  delivery_id String @unique
+  delivery delivery?
+  payment payment?
+  items items[]
+  locale String
+  internal_signature String
+  customer_id String
+  delivery_service String
+  shardkey String
+  sm_id Int
+  createdAt DateTime  @default(now())
+  oof_shard String
+}
+ 
+model items {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  chrt_id Int
+  price Int
+  rid String
+  name String
+  sale Int
+  size String
+  total_price Int
+  nm_id Int
+  brand String
+  status Int
+  post   Order   @relation(fields: [track_number], references: [track_number])
+  track_number String
+}
+
+model delivery{
+  delivery_uid String @id
+  name String
+  phone String 
+  zip String
+  city String
+  address String
+  region String
+  email String
+  Order Order @relation(fields: [delivery_uid], references: [delivery_id])
+}
+
+model payment{
+  transaction String @id
+  request_id String
+  provider String
+  amount Int
+  payment_dt Int
+  bank String
+  delivery_cost Int
+  goods_total Int
+  custom_fee Int
+  Order Order @relation(fields: [transaction],references: [order_uid])
+}
